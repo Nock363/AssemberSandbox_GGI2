@@ -1,0 +1,633 @@
+<html>
+  <head>
+  <script src="main.js"></script>
+  <script src="avr_parser.js"></script>
+  <script src="assemblerFunktionen.js"></script>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  </head>
+
+  <style>
+
+  body{
+    background-color: #27292f;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  td{
+    /*padding: 1vh 0.25vw 1vh 0.25vw;*/
+
+  }
+
+  tr:nth-child(even) {background-color: rgba(0,0,0,0.1);}
+  tr:nth-child(odd) {background-color: rgba(0,0,0,0);}
+
+
+
+  textarea{
+    border: none;
+    resize: none;
+  }
+  textarea:focus{
+    outline: none;
+  }
+
+  table{
+
+    table-layout: auto;
+    border: 0;
+    border-collapse: collapse;
+    font-size: 1vw;
+    text-align: center;
+    color: #eaeaea;
+    min-width: 0%;
+    height: 90%;
+    background-color: #2d3037;
+
+  }
+
+  th{
+    padding: 1vw;
+    height: 30px;
+  }
+  thead{
+    width: 100%;
+  }
+  tbody{
+    width: 100%;
+  }
+
+  .buttonContainer{
+    display: inline-block;
+    text-align: right;
+    height: 7%;
+    width: 100%;
+    margin-bottom: 1%;
+  }
+
+  button{
+    display: inline-block;
+    width: 15%;
+    height: 100%;
+    overflow: hidden;
+    margin: 5px;
+    font-size: 18px;
+    background-color: #2d3037;
+    color: white;
+    box-shadow: 0px 1px 3px 0.5px rgba(0,0,0,0.2);
+    border: none;
+    transition: all 0.25s;
+    box-sizing: border-box;
+  }
+  button.small{
+    width: 10%;
+    font-size: 2vw;
+
+  }
+
+  input{
+    height: 100%;
+    margin: 5px;
+    float:right;
+    background-color:#2d3037;
+    color:white;
+    border: none;
+    font-size: 1.5vw;
+    width: 25%;
+    min-width: 120px;
+    text-align: center;
+    box-shadow: 0px 1px 3px 0.5px rgba(0,0,0,0.2);
+  }
+
+  input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button
+{
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number]
+{
+  -moz-appearance: textfield;
+}
+
+
+  button:hover{
+    cursor: pointer;
+    background: grey;
+  }
+
+
+
+
+
+  .register{
+    position: relative;
+    float: right;
+    width: 25%;
+    margin-right: 0.5%;
+    box-shadow: 0px 1px 3px 0.5px rgba(0,0,0,0.2);
+  }
+
+  .stack{
+    position: relative;
+    float: right;
+    text-align: center;
+    width: 13%;
+    box-shadow: 0px 1px 3px 0.5px rgba(0,0,0,0.2);
+  }
+
+  .highlight{
+    background-color: green !important;
+  }
+
+  .mainContainer{
+    position: relative;
+    height: 100%;
+    width: 100%;
+    min-width: 1200px;
+
+
+  }
+
+  .leftContainer{
+    position: relative;
+    display: inline-block;
+    top: 0;
+    float: left;
+    margin-right: 0.5%;
+    height: 100%;
+    width: 40%;
+  }
+  .rightContainer{
+    position: relative;
+    display: inline-block;
+    height: 100%;
+    width: 59.5%;
+  }
+
+  .sourceCodeContainer{
+
+    position: relative;
+    background-color: #2d3037;
+    box-shadow: 2px 3px 3px 0.5px rgba(0,0,0,0.2);
+
+    width: 100%;
+    min-height: 90%;
+    margin-bottom: 1%;
+    overflow: scroll;
+    scroll-behavior: smooth;
+    scrollbar
+
+  }
+
+  .registerContainer{
+
+    position: relative;
+    display: inline-block;
+    top: 0;
+    float: right;
+    height: 90%;
+    width: 100%;
+    margin-bottom: 0.5%;
+
+  }
+
+  .portContainer{
+    width: 64%;
+    height: 9.5%;
+    float: right;
+    margin-top: 0.5%;
+  }
+  .port{
+    width: 49%;
+    height: 48%;
+
+    color: #eaeaea;
+    text-align: center;
+    line-height: 100%;
+    font-size: 0.9vw;
+    cursor: pointer;
+    display: inline-block;
+  }
+
+
+  .portCell{
+    width: 12.5%;
+    height: 100%;
+    display: inline-block;
+    box-sizing: border-box;
+    background-color: #2d3037;
+    margin: 0%;
+    padding: 0.5%;
+    float: right;
+    border: 1px solid #23262b;
+    transition: all 0.5s;
+  }
+  .portCell.in::after{
+    content: '   (in)   ';
+  }
+
+  .portCell.out::after{
+    content: '   (out)   ';
+  }
+  .portCell.in.high{
+    background-color: green;
+    color: white;
+  }
+  .portCell.out.high{
+    background-color: red;
+    color: white;
+  }
+
+  .portSubText{
+    margin: 0;
+    padding: 0;
+    font-size: 80%;
+
+  }
+
+  .flagContainer{
+    height: auto;
+    width: 100%;
+    text-align: left;
+    font-size: 130%;
+
+    float: left;
+    display: inline-block;
+
+  }
+  .flag{
+    text-align: center;
+    width: 3.5vw;
+    min-width: 35px;
+    max-width: 50px;
+
+    height: 3.5vw;
+    min-height: 35px;
+    max-height: 50px;
+
+    box-sizing: border-box;
+    margin: 0.5%;
+
+    line-height: 250%;
+    vertical-align: middle;
+
+    background-color: white;
+    display: inline-block;
+    transition: all 0.5s;
+    border-radius: 50%;
+  }
+  .flag.select{
+    background-color: green;
+    color: white;
+  }
+
+  .preText{
+    position: relative;
+    top: 0% !important;
+    color: #eaeaea7a !important;
+  }
+
+  .textEditor{
+    padding: 0;
+    margin: 0;
+    position: absolute;
+    min-height: 200%;
+    height: auto;
+    width: 200%;
+    font-size: 15px !important;
+    line-height: 20px !important;
+    letter-spacing: 1.2;
+    color: #eaeaea;
+    overflow: hidden;
+
+  }
+
+  .editorLine{
+
+    transition: all 0.25s;
+    opacity: 0.5;
+  }
+
+  .editorLine.error{
+
+    background-color: red;
+    opacity: 1;
+
+  }
+  .editorLine.step{
+    background-color: green;
+    opacity: 1;
+  }
+
+  .singleBlink{
+
+    animation: blink 1s;
+
+  }
+  @keyframes blink {
+  30% {background-color: #21a71f;}
+  }
+
+  .memory{
+    height: 100%;
+    display: inline-block;
+
+    margin-left: 0.5%;
+    width: 35%;
+    float: right;
+    box-shadow: 0px 1px 3px 0.5px rgba(0,0,0,0.2);
+  }
+  .memoryCellContainer{
+    width: 100%;
+    height: 93%;
+
+
+  }
+  .memoryCell{
+    position: relative;
+    display: inline-block;
+    width: 11.1111%;
+    height: 2.94117%;
+    margin: 0;
+    padding: 1%;
+    font-size: 0.8vw;
+    box-sizing: border-box;
+    color: white;
+    text-align: center;
+    letter-spacing: 1.5;
+  }
+  .memoryCell.light{
+    background-color: #2d3037;
+  }
+  .memoryHeadline{
+    padding: 5% 3% 1% 3%;
+    height:7%;
+    box-sizing: border-box;
+    color:#eaeaea;
+    background-color: #2d3037;
+    margin:0;
+    font-size:1vw;
+  }
+
+  .disclaimer{
+
+    position: relative;
+    width: 95%;
+    max-width: 1000px;
+    margin: 5% auto auto 20%;
+    min-height: 100%;
+    color: white;
+    letter-spacing: 1.3;
+    line-height: 130%;
+  }
+
+  </style>
+
+
+  <body onload="init()">
+
+
+  <div class= "mainContainer">
+
+    <div class="leftContainer">
+
+    <div class="sourceCodeContainer">
+
+    <textarea id="textEditorPreText" readonly spellcheck="false" class="preText textEditor" style="padding-left: 5%; width: 95%;background-color: rgba(0,0,0,0); z-index: 2">
+;------Stackpointerinitialisierung--------------
+LDI R16, high(RAMEND)
+OUT SPH, R16
+LDI R1r, low(RAMEND)
+OUT SPL, R16
+LDI R16, 0
+;-------------Programm code---------------------
+    </textarea>
+
+    <textarea spellcheck="false" id="textEditor" onkeyup="textAreaFunktion(event)" onkeydown="if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}" style="padding-left: 5%; width: 200%;background-color: rgba(0,0,0,0);top: 158.5px; z-index: 2" class="textEditor">
+
+LDI R16,0		;R16 auf Null setzen
+loop:			;Rücksprungmarke
+CPI R16, 100	;R16 gleich 100?
+BREQ end		;Wenn R16 gleich 100 spring zu 'end'
+INC R16		;R16 + 1
+IN R30, PORTA	;Lade Inhalt von PORTA in R30(Z low byte)
+ST Z,R16		;Lade R16 in ram-zelle mit der Addresse Z
+RJMP loop		;Spring zum Anfang von Loop
+
+end: RJMP -1		;Programm ende
+
+</textarea>
+
+    <p id="textEditorBackground"  class="textEditor" style="z-index: 1; "></p>
+
+
+
+    </div>
+
+    <div class="flagContainer">
+
+      <!--
+      <div class="flag" id="T">T</div>
+      <div class="flag" id="H">H</div>
+      <div class="flag" id="S">S</div>
+      -->
+      <div class="flag" id="C">C</div>
+      <div class="flag" id="N">N</div>
+      <div class="flag" id="Z">Z</div>
+      <div class="flag" id="V">V</div>
+
+    </div>
+
+    </div>
+
+    <div class="rightContainer">
+
+    <div class="buttonContainer">
+
+      <button style="width: 10%; float:left;" onclick="checkCode()">Prüfe</button>
+      <button style="width: 20%; float:left;" onclick="resetProgram()">Zurücksetzen</button>
+      <input id="schrittInput" min="0" type="number"placeholder="Schritt zeit(ms)">
+
+      <button class="small" onclick="runProgram()">&#9654;</button>
+      <button class="small" onclick="makeStep()">&#8627;</button>
+      <button class="small" onclick="stopProgram()">&#9632;</button>
+
+
+    </div>
+
+    <div class="registerContainer">
+
+      <div class="memory">
+
+        <p class="memoryHeadline"><b>Speicher(Ram)</b></p>
+        <div class="memoryCellContainer" id="memoryCells"></div>
+      </div>
+
+      <table class="stack" id="stackTable">
+
+        <tHead>
+          <tr>
+            <th> Stack </th>
+          </tr>
+        </tHead>
+        <tbody></tbody>
+      </table>
+
+      <table class="register" id="registerTable2">
+
+
+          <tHead>
+            <tr class="tableHeadline">
+              <th>Register</th>
+              <th>Inhalt</th>
+            </tr>
+          </tHead>
+
+          <tBody>
+
+            <tr>
+
+
+            </tr>
+          </tBody>
+
+
+
+
+      </table>
+      <table class="register" id="registerTable1">
+
+
+          <tHead>
+            <tr class="tableHeadline">
+              <th>Register</th>
+              <th>Inhalt</th>
+
+            </tr>
+          </tHead>
+
+          <tBody>
+
+            <tr>
+              <td>R0</td><td>10</td><td>00001010</td>
+
+            </tr>
+          </tBody>
+
+
+
+
+      </table>
+
+      <div class="portContainer">
+
+        <div class="port" style="margin-bottom: 0.5%" id="portA">
+          <div class="portCell" onclick="switchPort(0,0)">A0</div>
+          <div class="portCell" onclick="switchPort(0,1)">A1 </div>
+          <div class="portCell" onclick="switchPort(0,2)">A2</div>
+          <div class="portCell" onclick="switchPort(0,3)">A3</div>
+          <div class="portCell" onclick="switchPort(0,4)">A4</div>
+          <div class="portCell" onclick="switchPort(0,5)">A5</div>
+          <div class="portCell" onclick="switchPort(0,6)">A6</div>
+          <div class="portCell" onclick="switchPort(0,7)">A7</div>
+
+        </div>
+
+        <div class="port" id="portB" style="float: right;margin-bottom: 0.5%">
+          <div class="portCell" onclick="switchPort(1,0)">B0</div>
+          <div class="portCell" onclick="switchPort(1,1)">B1</div>
+          <div class="portCell" onclick="switchPort(1,2)">B2</div>
+          <div class="portCell" onclick="switchPort(1,3)">B3</div>
+          <div class="portCell" onclick="switchPort(1,4)">B4</div>
+          <div class="portCell" onclick="switchPort(1,5)">B5</div>
+          <div class="portCell" onclick="switchPort(1,6)">B6</div>
+          <div class="portCell" onclick="switchPort(1,7)">B7</div>
+
+        </div>
+
+        <div class="port" id="portC">
+          <div class="portCell" onclick="switchPort(2,0)">C0</div>
+          <div class="portCell" onclick="switchPort(2,1)">C1</div>
+          <div class="portCell" onclick="switchPort(2,2)">C2</div>
+          <div class="portCell" onclick="switchPort(2,3)">C3</div>
+          <div class="portCell" onclick="switchPort(2,4)">C4</div>
+          <div class="portCell" onclick="switchPort(2,5)">C5</div>
+          <div class="portCell" onclick="switchPort(2,6)">C6</div>
+          <div class="portCell" onclick="switchPort(2,7)">C7</div>
+
+        </div>
+
+
+        <div class="port" id="portD" style="float: right">
+          <div class="portCell" onclick="switchPort(3,0)">D0</div>
+          <div class="portCell" onclick="switchPort(3,1)">D1</div>
+          <div class="portCell" onclick="switchPort(3,2)">D2</div>
+          <div class="portCell" onclick="switchPort(3,3)">D3</div>
+          <div class="portCell" onclick="switchPort(3,4)">D4</div>
+          <div class="portCell" onclick="switchPort(3,5)">D5</div>
+          <div class="portCell" onclick="switchPort(3,6)">D6</div>
+          <div class="portCell" onclick="switchPort(3,7)">D7</div>
+
+        </div>
+
+
+    </div>
+
+
+
+
+
+
+  </div>
+
+</div>
+  </div>
+
+
+  <div class="disclaimer">
+
+    <h2>DISCLAIMER</h2>
+
+    Made By Fabian und Louis (fabian.kemper@mailbox.org & louis.leithaeuser@gmail.com)
+    <br><br>
+    Der WebAssembler dient als reine Übungplatform um die in der Vorlesung behandelten
+    AVR Assemblerbefehle und Programme zu testen ohne einen Chip benutzen zu müssen.
+    Grundlegend sind alle Befehle der KGÜ13 implementiert, allerdings noch nicht alle Sonderfälle bedacht.
+    Also denkt beim Programmieren mit!<br>
+    Sollte euch etwas beim Üben auffallen meldet euch gerne bei Fabian oder Louis.
+
+    <h3>Grundlegender Aufbau:</h3>
+
+     Auf dem linken drittel der Seite findet ihr eure Texteingabefläche. Dort könnt
+     ihr euer Programm schreiben. Darunter findet die ihr die Statusregister, bzw die in der Vorlesung
+     behandelten Flags. Daneben sind die Register, der Stack und Ram. Darunter
+     die <b>anklickbaren</b> Inputports mit je 8Bit. <br>
+     Über den Registern ist die Kommandozeile. <br>
+     Dort könnt ihr der Reihe nach euer Programm auf Korrektheit prüfen, alle Speicherzellen
+     auf Null setzen, das ganze Programm abspielen, einzelne Zeilen ausführen oder das Programm
+     stoppen. Rechts daneben könnt ihr die gewünschte Schrittzeit zwischen den Befehlen eingeben.
+     <br>
+     <br>
+
+     Der WebAssembler kann Sprungmarke, Befehl und Kommentar
+     in einer Zeile verarbeiten.
+     <br>
+     <br>
+
+    Befehl, Ziel- und Ursprungsregister müssen groß geschrieben werden.
+    <br>
+
+    Konstanten können <b>dezimal</b>, in Form von <b>0b00000000</b> oder in Form von <b>0xFF</b> im Bereich von 0-255 eingegeben werden.
+
+
+
+
+  </div>
+
+
+
+</body>
+
+
+</html>
